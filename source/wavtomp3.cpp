@@ -34,7 +34,7 @@ extern "C" {
 using namespace std;
 
 const int INVALID = -1;
-const int ERROR = -1;
+const int ERROR_VAL = -1;
 enum BlockSize
 {
     WAV_BLOCK_SIZE = 8192,
@@ -72,7 +72,7 @@ namespace Utility
         if (NULL == dirFile )
         {
             cout<<"\nError: could not open the directory " << dirPath.c_str() << " to read.\n";
-            return ERROR;
+            return ERROR_VAL;
         }
         struct dirent* dirStruct = NULL;
         bool bIgnoreHidden = true;
@@ -141,7 +141,7 @@ namespace Utility
         else
         {
             cout << "Filehandle got is NULL \n";
-            return ERROR;
+            return ERROR_VAL;
         }
         #endif
 
@@ -163,7 +163,7 @@ namespace Utility
         //TODO: WINDOWS
         #endif
         
-        return ERROR;
+        return ERROR_VAL;
         
     }
 
@@ -245,7 +245,7 @@ int ConvertWavToMp3(FILE *wav, FILE *mp3, lame_t lame)
         if(ferror(wav))
         {
             cout<<"\nRead wav file failed\n";
-            return ERROR;
+            return ERROR_VAL;
         }
         if (0 == read)
         {   //already read till EOF
@@ -259,7 +259,7 @@ int ConvertWavToMp3(FILE *wav, FILE *mp3, lame_t lame)
         if(ferror(wav))
         {
             cout<<"\nWrite mp3 file failed\n";
-            return ERROR;
+            return ERROR_VAL;
         }
     } while (read != 0);
     
@@ -293,7 +293,7 @@ int EncodeWrapper(vector<string> wavFiles)
     if(NULL == lame)
     {
         cout<<"Error: lame_init() failed. Perhaps out of memory";
-        return ERROR;
+        return ERROR_VAL;
     }
     lame_set_in_samplerate(lame, 44100);
     lame_set_VBR(lame, vbr_default);
@@ -301,7 +301,7 @@ int EncodeWrapper(vector<string> wavFiles)
     if( -1 == rval )
     {
         cout<<"Error: lame_init_params() failed.";
-        return ERROR;
+        return ERROR_VAL;
     }
     
     long count = 0;
@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
 
     multimap<long long, string> hold;
     
-	if( ERROR == (int)Utility::ReadDirectory(dirPath, hold))
+	if( ERROR_VAL == (int)Utility::ReadDirectory(dirPath, hold))
     {
         cout<<"\nError: Reading directory failed. Exiting";
         return (1);
