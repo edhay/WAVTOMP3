@@ -31,6 +31,9 @@ extern "C" {
 #include "threadexception.hpp"
 #include "threadwrapper.hpp"
 
+#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout<<arg
+
+
 using namespace std;
 
 const int INVALID = -1;
@@ -98,13 +101,14 @@ namespace Utility
                 int ret = stat(wavFileName.c_str(), &st);
                 if (ret != 0 )
                 {
-                    cout<<"\nError: Getting filesize failed. setting to size to 1";
+                    //cout<<"\nError: Getting filesize failed. setting to size to 1";
                     filesize = 1;
                 }
-            else
-            {
+            	else
+            	{
                     filesize = st.st_size;
-            }
+            	}
+                //Insert into the multimap. This list be intrinsically sorted
                 hold.insert(pair<long long, string> (filesize, wavFileName));
             
             }
@@ -132,7 +136,7 @@ namespace Utility
                     
                     cout << "The filesize : " << filesize << endl;
                     
-                    
+                    //Insert into the multimap. This list be intrinsically sorted
                     hold.insert(pair<long long, string>(filesize, wavFileName));
                 }
             } while (FindNextFileA(hFind, &data));
@@ -160,7 +164,10 @@ namespace Utility
             }
         }
         #elif _WIN32 
-        //TODO: WINDOWS
+        if( FILE_ATTRIBUTE_DIRECTORY == GetFileAttributesA(path.c_str()))
+        {
+        	return 0;
+        }
         #endif
         
         return ERROR_VAL;
@@ -175,11 +182,12 @@ class GlobalConfig
     static const int DELETE_ORIGINAL_FILES = 1;
     static const int DEFAULT_THREAD_MULTIPLE = 4;
     static const int DEFAULT_BIT_SAMPLING_RATE = 44100;
-
+    static const int DEFAULT_VERBOSE_MODE = 0;
     public:
     static int deleteOriginalFiles;
     static int nrOfThreadsPerProcesser;
     static int bitSamplingRate;
+    static int verboseMode;
     
     static void InitConfig()
     {
@@ -204,6 +212,11 @@ class GlobalConfig
             if(tempvalue != INVALID)
             {
                 bitSamplingRate = tempvalue;
+            }
+            tempvalue = configuration->getConfigValue("VerboseMode");
+            if(tempvalue != INVALID && (tempvalue == 0 || tempvalue == 1) )
+            {
+                verboseMode = tempvalue;
             }
         }
         
@@ -244,7 +257,8 @@ int ConvertWavToMp3(FILE *wav, FILE *mp3, lame_t lame)
         read = fread(wav_buffer, 2 * sizeof(short int), WAV_BLOCK_SIZE, wav);
         if(ferror(wav))
         {
-            cout<<"\nRead wav file failed\n";
+            //cout<<"\nRead wav file failed\n";
+            COUT(<<"\nRead wav file failed\n");
             return ERROR_VAL;
         }
         if (0 == read)
@@ -258,7 +272,8 @@ int ConvertWavToMp3(FILE *wav, FILE *mp3, lame_t lame)
         fwrite(mp3_buffer, write, 1, mp3);
         if(ferror(wav))
         {
-            cout<<"\nWrite mp3 file failed\n";
+            //cout<<"\nWrite mp3 file failed\n";
+            COUT(<<"\nWrite mp3 file failed\n");
             return ERROR_VAL;
         }
     } while (read != 0);
@@ -277,7 +292,8 @@ void* threadRunner(void* args)
         //Nothing to do
         return NULL;
     }
-    cout<<"No. of .wav files to be processed by this thread : "<< size;
+    //cout<<"No. of .wav files to be processed by this thread : "<< size;
+    COUT(<<"No. of .wav files to be processed by this thread : "<< size);
 
     EncodeWrapper(wavFiles);
     return (NULL);
@@ -292,7 +308,8 @@ int EncodeWrapper(vector<string> wavFiles)
     lame_t lame = lame_init();
     if(NULL == lame)
     {
-        cout<<"Error: lame_init() failed. Perhaps out of memory";
+        //cout<<"Error: lame_init() failed. Perhaps out of memory";
+        COUT(<<"Error: lame_init() failed. Perhaps out of memory");
         return ERROR_VAL;
     }
     lame_set_in_samplerate(lame, 44100);
@@ -300,7 +317,8 @@ int EncodeWrapper(vector<string> wavFiles)
     int rval = lame_init_params(lame);
     if( -1 == rval )
     {
-        cout<<"Error: lame_init_params() failed.";
+        //cout<<"Error: lame_init_params() failed.";
+        COUT(<<"Error: lame_init_params() failed.");
         return ERROR_VAL;
     }
     
@@ -312,7 +330,8 @@ int EncodeWrapper(vector<string> wavFiles)
         FILE *wav = fopen(filename.c_str(), "rb");
         if(NULL == wav)
         {
-            cout<<"\n could not open "<<filename<<", ignoring this file\n";
+            //cout<<"\n could not open "<<filename<<", ignoring this file\n";
+            COUT(<<"\n could not open "<<filename<<", ignoring this file\n");
             //Skip this file.
             continue;
         }
@@ -320,11 +339,12 @@ int EncodeWrapper(vector<string> wavFiles)
         
         //To get the mp3 taget filename,  change the file extension to .wav to .mp3
         mp3FileName.replace(mp3FileName.length() - 3, 3, "mp3");
-        cout<<"\nTrying to write to "<<mp3FileName.c_str()<<" \n";
+        COUT(<<"\nTrying to write to "<<mp3FileName.c_str()<<" \n");
         mp3 = fopen(mp3FileName.c_str(), "wb");
         if(NULL == mp3 )
         {
-            cout<<"\n could not open file.mp3 to write, ignoring this file\n";
+            //cout<<"\n could not open file.mp3 to write, ignoring this file\n";
+            COUT(<<"\n could not open file.mp3 to write, ignoring this file\n");
             fclose(wav);
             continue;
         }
@@ -339,14 +359,16 @@ int EncodeWrapper(vector<string> wavFiles)
         {
             if( 0 != remove( filename.c_str() ) )
             {
-                cout<<"Error : Removing file "<< filename <<" Failed";
+                //cout<<"Error : Removing file "<< filename <<" Failed";
+                COUT(<<"Error : Removing file "<< filename <<" Failed");
             }
         }
        
     }
     
     lame_close(lame);
-    cout<<"\nTotal Files Processed = "<<count<<"\n";
+    //cout<<"\nTotal Files Processed = "<<count<<"\n";
+    COUT(<<"\nTotal Files Processed = "<<count<<"\n");
     return 0;
 }
 
@@ -357,7 +379,7 @@ int main(int argc, char* argv[])
 {
     
     
-    if( argc < 2)
+    if( argc != 2)
     {
         cout<<"\nusage : " << argv[0] << " <Path of directory with .wav files> \n\n";
         return (1);
@@ -367,11 +389,12 @@ int main(int argc, char* argv[])
 
     if( 0 != Utility::CheckIfDir(dirPath))
     {
-        cout<< dirPath << " is not a valid directory. Exiting ...\n\n";
+        cerr<< dirPath << " is not a valid directory. Exiting ...\n\n";
         return (1);
     }
 
-    cout<<"Working on dir : " << dirPath << "\n";
+    //cout<<"Working on dir : " << dirPath << "\n";
+    COUT(<<"Working on dir : " << dirPath << "\n");
     
     GlobalConfig::InitConfig();
 
@@ -379,17 +402,18 @@ int main(int argc, char* argv[])
     
 	if( ERROR_VAL == (int)Utility::ReadDirectory(dirPath, hold))
     {
-        cout<<"\nError: Reading directory failed. Exiting";
+        cerr<<"\nError: Reading directory failed. Exiting";
         return (1);
     }
     
     size_t nrOfWavFiles = hold.size();
-    cout<<"Total number of .wav files found : " <<nrOfWavFiles<<endl;
+    //cout<<"Total number of .wav files found : " <<nrOfWavFiles<<endl;
+    COUT(<<"Total number of .wav files found : " <<nrOfWavFiles<<endl);
 
 	
     if(0 == nrOfWavFiles)
     {
-        cout<<"No .wav files found in "<<dirPath<<" so exiting ...\n";
+        cerr<<"No .wav files found in "<<dirPath<<" so exiting ...\n";
         return 0;
     }
     
@@ -398,21 +422,24 @@ int main(int argc, char* argv[])
 
 	if ( nrOfCPUs < 0 )
 	{
-		cout << "Total number of CPUs cores: " << nrOfCPUs <<" So setting it to 1"<< endl;
+		//cout << "Total number of CPUs cores: " << nrOfCPUs <<" So setting it to 1"<< endl;
+		COUT( << "Total number of CPUs cores: " << nrOfCPUs <<" So setting it to 1"<< endl);
 		nrOfCPUs = 1;
 	}
 
-    cout<<"Total number of CPUs cores: " <<nrOfCPUs<<endl;
-    
+    //cout<<"Total number of CPUs cores: " <<nrOfCPUs<<endl;
+    COUT(<<"Total number of CPUs cores: " <<nrOfCPUs<<endl);
+
     //Choosing 4 threads per processor
     size_t nrOfThreads = nrOfCPUs * GlobalConfig::nrOfThreadsPerProcesser;
-    cout<<"Total number Threads is set to : " <<nrOfThreads<<" Thread Multiple is :" <<GlobalConfig::nrOfThreadsPerProcesser<<endl;
-    
+    //cout<<"Total number Threads is set to : " <<nrOfThreads<<" Thread Multiple is :" <<GlobalConfig::nrOfThreadsPerProcesser<<endl;
+    COUT(<<"Total number Threads is set to : " <<nrOfThreads<<" Thread Multiple is :" <<GlobalConfig::nrOfThreadsPerProcesser<<endl);
 
 	if (nrOfThreads > nrOfWavFiles)
 	{
 		nrOfThreads = nrOfWavFiles;
-		cout << "Total number Threads is reset to : " << nrOfThreads;
+		//cout << "Total number Threads is reset to : " << nrOfThreads;
+		COUT(<< "Total number Threads is reset to : " << nrOfThreads);
 	}
 
     //To store the subset of the wav files to send to the induvidual threads.
@@ -424,7 +451,7 @@ int main(int argc, char* argv[])
     {
         sub[index].push_back(x->second);
         index = (index + 1) % nrOfThreads;
-        cout<<"\n "<<x->first<<" "<<x->second;
+        //cout<<"\n "<<x->first<<" "<<x->second;
     }
     
     cout<<"\nDistribution\n";
@@ -433,8 +460,10 @@ int main(int argc, char* argv[])
         for ( auto x : sub[i])
         {
             cout<<"\nSUB : "<<i<< " "<<x;
+            COUT(<<"\nSUB : "<<i<< " "<<x);
         }
-        cout<<"\n---Count : "<<sub[i].size();
+        cout<<"\nCount : "<<sub[i].size();
+        COUT(<<"\nCount : "<<sub[i].size());
     }
     
     
@@ -449,7 +478,7 @@ int main(int argc, char* argv[])
         }
         catch( ThreadException t)
         {
-            cout << "ThreadException Exception Caught, Message : " << t.getMessage() << " Status : "<< t.getStatus() << " \n";
+            cerr << "ThreadException Exception Caught, Message : " << t.getMessage() << " Status : "<< t.getStatus() << " \n";
         }
     }
     

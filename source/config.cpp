@@ -39,7 +39,7 @@ int Config::readConfigFile(string configFileName)
             }
             catch (...)
             {
-                cout<< "Could not covert to int. Config Reading Failed\n";
+                //cout<< "Could not covert to int. Config Reading Failed\n";
                 return -1;
             }
             nameValue.insert(std::pair<string, int>(name, val));
@@ -50,7 +50,7 @@ int Config::readConfigFile(string configFileName)
     }
     else
     {
-        cout << "Couldn't open config file for reading.\n";
+        //cout << "Couldn't open config file for reading.\n";
         return -1;
     }
 }
@@ -62,12 +62,12 @@ int Config::getConfigValue(string name)
     
     if ( entry == nameValue.end() )
     {
-        cout << "not found config : "<< name <<"\n";
+        cout << "Warning : not found config : "<< name <<"\n";
         return -1;
     }
     else
     {
-        cout <<"From Config "<<"settings.cfg  "<< entry->first << " : " << entry->second<<endl;
+        //cout <<"From Config "<<"settings.cfg  "<< entry->first << " : " << entry->second<<endl;
         return entry->second;
     }
     

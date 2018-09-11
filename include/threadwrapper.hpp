@@ -14,6 +14,8 @@
 
 using namespace std;
 
+#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout<<arg
+
 typedef void* (*RunnerFunc)(void*);
 //A Simple thread wrapper for pthread
 class Thread
@@ -49,10 +51,11 @@ class Thread
         for (size_t i = 0; i < threads.size(); i++)
         {
             pthread_join(threads[i].threadID, NULL);
-            //cout<<"\n ThreadID : "<<threads[i].threadID<<" completed";
-			cout << "\n Thread : " << i << " completed";
+            
+			//cout << "\n Thread : " << i << " completed";
+            COUT(<< "\n Thread : " << i << " completed");
         }
-        cout<<"\n";
+        COUT(<<"\n");
     }
     
     private:
