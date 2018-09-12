@@ -31,7 +31,7 @@ extern "C" {
 #include "threadexception.hpp"
 #include "threadwrapper.hpp"
 
-#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout<<arg
+#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout arg
 
 
 using namespace std;
@@ -231,9 +231,11 @@ class GlobalConfig
 const int GlobalConfig::DELETE_ORIGINAL_FILES;
 const int GlobalConfig::DEFAULT_THREAD_MULTIPLE;
 const int GlobalConfig::DEFAULT_BIT_SAMPLING_RATE;
+const int GlobalConfig::DEFAULT_VERBOSE_MODE;
 int GlobalConfig::deleteOriginalFiles = DELETE_ORIGINAL_FILES;
 int GlobalConfig::nrOfThreadsPerProcesser = DEFAULT_THREAD_MULTIPLE;
 int GlobalConfig::bitSamplingRate= DEFAULT_BIT_SAMPLING_RATE;
+int GlobalConfig::verboseMode = DEFAULT_VERBOSE_MODE;
 
 
 
