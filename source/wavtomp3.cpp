@@ -3,7 +3,8 @@
 #include <csignal>
 #include <vector>
 #include <map>
-#include "config.hpp"
+//#include "config.hpp"
+#include "globalconfig.hpp"
 
 //extern "C" {
 #include <stdio.h>
@@ -31,13 +32,10 @@ extern "C" {
 #include "threadexception.hpp"
 #include "threadwrapper.hpp"
 
-#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout arg
 
 
 using namespace std;
 
-const int INVALID = -1;
-const int ERROR_VAL = -1;
 enum BlockSize
 {
     WAV_BLOCK_SIZE = 8192,
@@ -126,7 +124,8 @@ namespace Utility
                 if (strstr(data.cFileName, ".wav") || strstr(data.cFileName, ".WAV"))
                 {
                     string wavFileName = dirPath + "\\" + data.cFileName; 
-                    cout << wavFileName << endl;
+                    //cout << wavFileName << endl;
+					COUT( << wavFileName << endl);
 
                     size_t filesize = 1;
                     
@@ -134,8 +133,9 @@ namespace Utility
                     filesize <<= sizeof(data.nFileSizeHigh) * 8;
                     filesize |= data.nFileSizeLow;
                     
-                    cout << "The filesize : " << filesize << endl;
-                    
+                    //cout << "The filesize : " << filesize << endl;
+					COUT( << "The filesize : " << filesize << endl);
+
                     //Insert into the multimap. This list be intrinsically sorted
                     hold.insert(pair<long long, string>(filesize, wavFileName));
                 }
@@ -176,57 +176,6 @@ namespace Utility
 
 }
 
-class GlobalConfig
-{
-    private:
-    static const int DELETE_ORIGINAL_FILES = 1;
-    static const int DEFAULT_THREAD_MULTIPLE = 4;
-    static const int DEFAULT_BIT_SAMPLING_RATE = 44100;
-    static const int DEFAULT_VERBOSE_MODE = 0;
-    public:
-    static int deleteOriginalFiles;
-    static int nrOfThreadsPerProcesser;
-    static int bitSamplingRate;
-    static int verboseMode;
-    
-    static void InitConfig()
-    {
-        Config* configuration = Config::getInstance();
-        if(NULL == configuration || -1 == configuration->init("config/settings.cfg"))
-        {
-            cout<<"Could not read config file. Setting to default values\n";
-        }
-        else
-        {
-            int tempvalue = configuration->getConfigValue("DeleteOriginalFiles");
-            if(tempvalue != INVALID && (tempvalue == 0 || tempvalue == 1))
-            {
-                deleteOriginalFiles = tempvalue;
-            }
-            tempvalue = configuration->getConfigValue("NrOfThreadsPerProcesser");
-            if(tempvalue != INVALID && (tempvalue >= 1 && tempvalue <= 16))
-            {
-                nrOfThreadsPerProcesser = tempvalue;
-            }
-            tempvalue = configuration->getConfigValue("BitSamplingRate");
-            if(tempvalue != INVALID)
-            {
-                bitSamplingRate = tempvalue;
-            }
-            tempvalue = configuration->getConfigValue("VerboseMode");
-            if(tempvalue != INVALID && (tempvalue == 0 || tempvalue == 1) )
-            {
-                verboseMode = tempvalue;
-            }
-        }
-        
-        cout<<"\nConfiguration Values: \n";
-        cout<<"DeleteOriginalFiles = "<<deleteOriginalFiles<<"\n";
-        cout<<"NrOfThreadsPerProcesser = "<<nrOfThreadsPerProcesser<<"\n";
-        cout<<"BitSamplingRate = "<<bitSamplingRate<<"\n";
-    }
-    
-};
 
 const int GlobalConfig::DELETE_ORIGINAL_FILES;
 const int GlobalConfig::DEFAULT_THREAD_MULTIPLE;
@@ -461,10 +410,10 @@ int main(int argc, char* argv[])
     {
         for ( auto x : sub[i])
         {
-            cout<<"\nSUB : "<<i<< " "<<x;
+            //cout<<"\nSUB : "<<i<< " "<<x;
             COUT(<<"\nSUB : "<<i<< " "<<x);
         }
-        cout<<"\nCount : "<<sub[i].size();
+        //cout<<"\nCount : "<<sub[i].size();
         COUT(<<"\nCount : "<<sub[i].size());
     }
     

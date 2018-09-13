@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <vector>
 #include "threadexception.hpp"
+#include "globalconfig.hpp"
 
 using namespace std;
 
-//#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout<<arg
 
 typedef void* (*RunnerFunc)(void*);
 //A Simple thread wrapper for pthread
@@ -52,11 +52,11 @@ class Thread
         {
             pthread_join(threads[i].threadID, NULL);
             
-			cout << "\n Thread : " << i << " completed";
-            //COUT(<< "\n Thread : " << i << " completed");
+			//cout << "\n Thread : " << i << " completed";
+            COUT(<< "\n Thread : " << i << " completed");
         }
-        //COUT(<<"\n");
-		cout<< "\n";
+        COUT(<<"\n");
+		//cout<< "\n";
     }
     
     private:

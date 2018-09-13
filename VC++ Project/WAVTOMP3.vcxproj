@@ -130,6 +130,7 @@
     <ClInclude Include="..\include\lame.h" />
     <ClInclude Include="..\include\threadexception.hpp" />
     <ClInclude Include="..\include\ThreadWrapper.hpp" />
+    <ClInclude Include="globalconfig.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\config.cpp" />

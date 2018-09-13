@@ -11,6 +11,11 @@
 #include <unordered_map>
 #include <string>
 
+#define COUT(arg) if (1 == GlobalConfig::verboseMode ) cout arg
+
+const int INVALID = -1;
+const int ERROR_VAL = -1;
+
 using namespace std;
 
 class Config
